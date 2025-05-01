@@ -396,7 +396,7 @@ void UpdateGame(void)
             for (int i = 0; i < MAX_SMALL_METEORS; i++)
             {
                 if (smallMeteor[i].active)
-                {
+{
                     // Movement
                     smallMeteor[i].position.x += smallMeteor[i].speed.x;
                     smallMeteor[i].position.y += smallMeteor[i].speed.y;
@@ -496,13 +496,13 @@ void UpdateGame(void)
         }
         //Score to let you know how much points you currently have
         DrawText(TextFormat("Score: %08i", scoreForDestroyedMeteors), 10, 10, 40, SKYBLUE);
-
+	
         if (destroyedMeteorsCount == MAX_BIG_METEORS + MAX_MEDIUM_METEORS + MAX_SMALL_METEORS) victory = true;
     }
     else
     {
         if (IsKeyPressed(KEY_ENTER))
-        {
+	{
             InitGame();
             gameOver = false;
             scoreForDestroyedMeteors = 0;
@@ -513,7 +513,7 @@ void UpdateGame(void)
 // Draw game (one frame)
 void DrawGame(void)
 {
-    BeginDrawing();
+		BeginDrawing();
 
     ClearBackground(RAYWHITE);
 
@@ -560,8 +560,9 @@ void DrawGame(void)
         DrawText("PRESS [ENTER] TO PLAY AGAIN", screenWidth / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, screenHeight / 2 - 50, 20, GRAY);
     }
 
-    EndDrawing();
-}
+		// end the frame and get ready for the next one  (display frame, poll input, etc...)
+		EndDrawing();
+	}
 
 // Unload game variables
 void UnloadGame(void)
