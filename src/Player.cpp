@@ -1,4 +1,5 @@
 #include "Player.h"
+//#include "main.cpp"
 #include <cmath>
 
 #define PLAYER_BASE_SIZE 45.0f
@@ -12,6 +13,9 @@ Player::Player() {
     rotation = 0;
     collider = { 0, 0, 12 };
     color = LIGHTGRAY;
+    invincible = false;
+    invincibilityTimer = 0.0f;
+    invincibilityDuration = 5.0f;
 }
 
 void Player::Reset(int screenWidth, int screenHeight) {
@@ -64,6 +68,11 @@ void Player::Update(int screenWidth, int screenHeight) {
 }
 
 void Player::Draw() const {
+    //Adds blinking effect
+    if (invincible) {
+        if (((int)(invincibilityTimer * 10) % 2) == 0) return;
+    }
+
     Vector2 v1 = { position.x + sinf(rotation * DEG2RAD) * shipHeight, position.y - cosf(rotation * DEG2RAD) * shipHeight };
     Vector2 v2 = { position.x - cosf(rotation * DEG2RAD) * (PLAYER_BASE_SIZE / 2), position.y - sinf(rotation * DEG2RAD) * (PLAYER_BASE_SIZE / 2) };
     Vector2 v3 = { position.x + cosf(rotation * DEG2RAD) * (PLAYER_BASE_SIZE / 2), position.y + sinf(rotation * DEG2RAD) * (PLAYER_BASE_SIZE / 2) };
@@ -81,4 +90,25 @@ Vector2 Player::GetPosition() const {
 
 float Player::GetRotation() const {
     return rotation;
+}
+
+//Adds invincibility to player after they die so then they don't get killed right on respawn
+void Player::StartInvincibility(float duration) {
+    invincible = true;
+    invincibilityTimer = 0.0f;
+    invincibilityDuration = duration;
+}
+
+void Player::UpdateInvincibility(float deltaTime) {
+    if (invincible) {
+        invincibilityTimer += deltaTime;
+        if (invincibilityTimer >= invincibilityDuration) {
+            invincible = false;
+            invincibilityTimer = 0.0f;
+        }
+    }
+}
+
+bool Player::IsInvicible() const {
+    return invincible;
 }

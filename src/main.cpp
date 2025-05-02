@@ -19,6 +19,8 @@ int screenHeight = 800;
 bool gameOver = false;
 bool pause = false;
 bool victory = false;
+bool waitToContinue = false;
+int lives = 3;
 int destroyedMeteorsCount = 0;
 int midMeteorsCount = 0;
 int smallMeteorsCount = 0;
@@ -38,10 +40,14 @@ void DrawGame();
 int main() {
     InitWindow(screenWidth, screenHeight, "Asteroid Game - OOP");
 
+    ToggleFullscreen();
+
     InitGame();
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
+        player.UpdateInvincibility(GetFrameTime());
+
         if (IsKeyPressed(KEY_ENTER) && gameOver) {
             InitGame();
             gameOver = false;
@@ -59,6 +65,7 @@ void InitGame() {
     gameOver = false;
     pause = false;
     victory = false;
+    lives = 3;
     destroyedMeteorsCount = 0;
     scoreForDestroyedMeteors = 0;
     midMeteorsCount = 0;
@@ -102,6 +109,23 @@ void InitGame() {
 }
 
 void UpdateGame() {
+    if (waitToContinue) {
+        if (IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ENTER)) {
+            player.Reset(screenWidth, screenHeight);
+            player.StartInvincibility();
+            waitToContinue = false;
+        }
+        return;
+    }
+
+    //if (isInvincible) {
+    //    invincibilityTimer += GetFrameTime();
+    //    if (invincibilityTimer >= 5.0f) {
+    //        isInvincible = false;
+    //        invincibilityTimer = 0.0f;
+    //    }
+    //}
+
     if (!gameOver) {
         if (IsKeyPressed(KEY_P)) pause = !pause;
         if (!pause) {
@@ -132,24 +156,47 @@ void UpdateGame() {
             // Collision: Player vs Meteors
             Vector3 collider = player.GetCollider();
             for (int i = 0; i < MAX_BIG_METEORS; i++) {
-                if (bigMeteors[i].IsActive() &&
-                    CheckCollisionCircles({ collider.x, collider.y }, collider.z,
-                        bigMeteors[i].GetPosition(), bigMeteors[i].GetRadius())) {
-                    gameOver = true;
+                if (!player.IsInvicible() && bigMeteors[i].IsActive() && CheckCollisionCircles({collider.x, collider.y}, collider.z, bigMeteors[i].GetPosition(), bigMeteors[i].GetRadius())) {
+                    if (lives > 1) {
+                        lives--;
+                        if (scoreForDestroyedMeteors >= 10) {
+                            scoreForDestroyedMeteors -= 10;
+                        }
+                        waitToContinue = true;
+                    }
+                    else {
+                        gameOver = true;
+                    }
                 }
             }
             for (int i = 0; i < MAX_MEDIUM_METEORS; i++) {
-                if (mediumMeteors[i].IsActive() &&
-                    CheckCollisionCircles({ collider.x, collider.y }, collider.z,
-                        mediumMeteors[i].GetPosition(), mediumMeteors[i].GetRadius())) {
-                    gameOver = true;
+                if (!player.IsInvicible() && mediumMeteors[i].IsActive() && CheckCollisionCircles({ collider.x, collider.y }, collider.z, mediumMeteors[i].GetPosition(), mediumMeteors[i].GetRadius())) {
+
+                    if (lives > 1) {
+                        lives--;
+                        if (scoreForDestroyedMeteors >= 10) {
+                            scoreForDestroyedMeteors -= 10;
+                        }
+                        waitToContinue = true;
+                    }
+                    else {
+                        gameOver = true;
+                    }
                 }
             }
             for (int i = 0; i < MAX_SMALL_METEORS; i++) {
-                if (smallMeteors[i].IsActive() &&
-                    CheckCollisionCircles({ collider.x, collider.y }, collider.z,
-                        smallMeteors[i].GetPosition(), smallMeteors[i].GetRadius())) {
-                    gameOver = true;
+                if (!player.IsInvicible() && smallMeteors[i].IsActive() && CheckCollisionCircles({ collider.x, collider.y }, collider.z, smallMeteors[i].GetPosition(), smallMeteors[i].GetRadius())) {
+
+                    if (lives > 1) {
+                        lives--;
+                        if (scoreForDestroyedMeteors >= 10) {
+                            scoreForDestroyedMeteors -= 10;
+                        }
+                        waitToContinue = true;
+                    }
+                    else {
+                        gameOver = true;
+                    }
                 }
             }
 
@@ -240,6 +287,7 @@ void DrawGame() {
         for (int i = 0; i < MAX_SMALL_METEORS; i++) smallMeteors[i].Draw();
 
         DrawText(TextFormat("Score: %08i", scoreForDestroyedMeteors), 10, 10, 30, DARKBLUE);
+        DrawText(TextFormat("Lives: %d", lives), 10, 50, 30, RED);
 
         if (pause) DrawText("PAUSED", screenWidth / 2 - 50, screenHeight / 2, 40, GRAY);
         if (victory) DrawText("VICTORY!", screenWidth / 2 - 80, screenHeight / 2, 40, GREEN);
@@ -247,6 +295,14 @@ void DrawGame() {
     else {
         DrawText(TextFormat("Score: %08i", scoreForDestroyedMeteors), screenWidth / 2 - 100, screenHeight / 2 - 40, 30, RED);
         DrawText("PRESS [ENTER] TO PLAY AGAIN", screenWidth / 2 - 150, screenHeight / 2, 20, DARKGRAY);
+    }
+
+    if (waitToContinue) {
+        DrawRectangle(0, 0, screenWidth, screenHeight, Fade(DARKGRAY, 0.5F));
+        DrawText("An Asteroid Hit You!", screenWidth / 2 - MeasureText("An Asteroid Hit You!", 40) / 2, screenHeight / 2 - 60, 40, RED);
+        DrawText("Press [Enter] or [Space] to continue the game", screenWidth / 2 - 230, screenHeight / 2, 20, DARKGRAY);
+        EndDrawing();
+        return;
     }
 
     EndDrawing();

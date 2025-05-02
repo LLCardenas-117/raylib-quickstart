@@ -12,13 +12,19 @@ private:
     float acceleration;
     float rotation;
     float shipHeight;
+    float invincibilityTimer;
+    float invincibilityDuration;
+    bool invincible;
     Vector3 collider;
     Color color;
-
+    
 public:
     Player();
     void Update(int screenWidth, int screenHeight);
     void Draw() const;
+    void StartInvincibility(float duration = 5.0f);
+    void UpdateInvincibility(float deltaTime);
+    bool IsInvicible() const;
     Vector3 GetCollider() const;
     Vector2 GetPosition() const;
     float GetRotation() const;
